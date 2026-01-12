@@ -338,6 +338,28 @@ variable "disable_arm" {
   description = "If true, arm images will not be used."
 }
 
+variable "talos_image_id_x86" {
+  type        = string
+  default     = null
+  description = <<EOF
+    Optional Hetzner Cloud image ID for x86_64 architecture.
+    When set, this image ID will be used directly instead of looking up images with the 'os=talos' selector.
+    This allows using official Hetzner Talos images (e.g., 122630) or any custom snapshot ID.
+    If not set, the module will use data source lookup with 'os=talos' selector (requires custom Packer-built snapshots).
+  EOF
+}
+
+variable "talos_image_id_arm" {
+  type        = string
+  default     = null
+  description = <<EOF
+    Optional Hetzner Cloud image ID for ARM64 architecture.
+    When set, this image ID will be used directly instead of looking up images with the 'os=talos' selector.
+    This allows using official Hetzner Talos images (e.g., 122629) or any custom snapshot ID.
+    If not set, the module will use data source lookup with 'os=talos' selector (requires custom Packer-built snapshots).
+  EOF
+}
+
 # Talos
 variable "kubelet_extra_args" {
   type        = map(string)

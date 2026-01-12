@@ -1,12 +1,12 @@
 data "hcloud_image" "arm" {
-  count             = var.disable_arm ? 0 : 1
+  count             = var.disable_arm || var.talos_image_id_arm != null ? 0 : 1
   with_selector     = "os=talos"
   with_architecture = "arm"
   most_recent       = true
 }
 
 data "hcloud_image" "x86" {
-  count             = var.disable_x86 ? 0 : 1
+  count             = var.disable_x86 || var.talos_image_id_x86 != null ? 0 : 1
   with_selector     = "os=talos"
   with_architecture = "x86"
   most_recent       = true
@@ -14,10 +14,23 @@ data "hcloud_image" "x86" {
 
 locals {
   cluster_prefix = var.cluster_prefix ? "${var.cluster_name}-" : ""
+
+  # Determine the ARM image ID: use provided ID if set, otherwise use data source lookup
+  arm_image_id = (
+    var.talos_image_id_arm != null ? var.talos_image_id_arm :
+    (var.disable_arm ? null : data.hcloud_image.arm[0].id)
+  )
+
+  # Determine the x86 image ID: use provided ID if set, otherwise use data source lookup
+  x86_image_id = (
+    var.talos_image_id_x86 != null ? var.talos_image_id_x86 :
+    (var.disable_x86 ? null : data.hcloud_image.x86[0].id)
+  )
+
   control_plane_image_id = (
     substr(var.control_plane_server_type, 0, 3) == "cax" ?
-    (var.disable_arm ? null : data.hcloud_image.arm[0].id) : // Use ARM image if not disabled
-    (var.disable_x86 ? null : data.hcloud_image.x86[0].id)   // Use x86 image if not disabled
+    local.arm_image_id : // Use ARM image
+    local.x86_image_id   // Use x86 image
   )
 
   # Calculate total worker count from both old and new variables
@@ -33,8 +46,8 @@ locals {
       server_type = var.worker_server_type
       image_id = (
         substr(var.worker_server_type, 0, 3) == "cax" ?
-        (var.disable_arm ? null : data.hcloud_image.arm[0].id) :
-        (var.disable_x86 ? null : data.hcloud_image.x86[0].id)
+        local.arm_image_id :
+        local.x86_image_id
       )
       ipv4_public         = local.worker_public_ipv4_list[i]
       ipv6_public         = var.enable_ipv6 ? local.worker_public_ipv6_list[i] : null
@@ -55,8 +68,8 @@ locals {
       server_type = worker.type
       image_id = (
         substr(worker.type, 0, 3) == "cax" ?
-        (var.disable_arm ? null : data.hcloud_image.arm[0].id) :
-        (var.disable_x86 ? null : data.hcloud_image.x86[0].id)
+        local.arm_image_id :
+        local.x86_image_id
       )
       ipv4_public        = local.worker_public_ipv4_list[local.legacy_worker_count + i]
       ipv6_public        = var.enable_ipv6 ? local.worker_public_ipv6_list[local.legacy_worker_count + i] : null
