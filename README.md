@@ -134,9 +134,11 @@ This repository contains a Terraform module for creating a Kubernetes cluster wi
 
 > [!TIP]
 > **New in this version:** You can now use official Hetzner Talos images directly without building custom images with Packer!
-> Hetzner now provides [official Talos Linux ISOs](https://docs.hetzner.cloud/changelog#2025-10-09-talos-linux-v1112-iso-now-available):
-> - x86_64: Image ID `122630`
-> - ARM64: Image ID `122629`
+> Hetzner now provides [official Talos Linux ISOs](https://docs.hetzner.cloud/changelog#2025-10-09-talos-linux-v1112-iso-now-available).
+> Check the [Hetzner Cloud changelog](https://docs.hetzner.cloud/changelog) for the latest available Talos image IDs.
+> As of January 2025, the available images are:
+> - x86_64: Image ID `122630` (Talos Linux 1.11.2)
+> - ARM64: Image ID `122629` (Talos Linux 1.11.2)
 >
 > To use official images, skip this step and set `talos_image_id_x86` and/or `talos_image_id_arm` variables in your Terraform configuration (see examples below).
 
@@ -172,9 +174,9 @@ module "talos" {
 
   talos_version = "v1.11.0" # The version of talos features to use in generated machine configurations
 
-  # Use official Hetzner Talos images
-  talos_image_id_x86 = "122630" # Official Hetzner Talos Linux 1.11.2 x86_64 image
-  talos_image_id_arm = "122629" # Official Hetzner Talos Linux 1.11.2 ARM64 image
+  # Use official Hetzner Talos images (check https://docs.hetzner.cloud/changelog for latest IDs)
+  talos_image_id_x86 = "122630" # Talos Linux 1.11.2 x86_64 (as of Jan 2025)
+  talos_image_id_arm = "122629" # Talos Linux 1.11.2 ARM64 (as of Jan 2025)
 
   hcloud_token            = "your-hcloud-token"
   # If true, the current IP address will be used as the source for the firewall rules.

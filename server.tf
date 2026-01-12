@@ -18,13 +18,13 @@ locals {
   # Determine the ARM image ID: use provided ID if set, otherwise use data source lookup
   arm_image_id = (
     var.talos_image_id_arm != null ? var.talos_image_id_arm :
-    (var.disable_arm ? null : data.hcloud_image.arm[0].id)
+    (var.disable_arm || length(data.hcloud_image.arm) == 0 ? null : data.hcloud_image.arm[0].id)
   )
 
   # Determine the x86 image ID: use provided ID if set, otherwise use data source lookup
   x86_image_id = (
     var.talos_image_id_x86 != null ? var.talos_image_id_x86 :
-    (var.disable_x86 ? null : data.hcloud_image.x86[0].id)
+    (var.disable_x86 || length(data.hcloud_image.x86) == 0 ? null : data.hcloud_image.x86[0].id)
   )
 
   control_plane_image_id = (

@@ -344,7 +344,9 @@ variable "talos_image_id_x86" {
   description = <<EOF
     Optional Hetzner Cloud image ID for x86_64 architecture.
     When set, this image ID will be used directly instead of looking up images with the 'os=talos' selector.
-    This allows using official Hetzner Talos images (e.g., 122630) or any custom snapshot ID.
+    This allows using official Hetzner Talos images or any custom snapshot ID.
+    See https://docs.hetzner.cloud/changelog for the latest official Talos image IDs.
+    Example: "122630" for Talos Linux 1.11.2 x86_64 (as of Jan 2025).
     If not set, the module will use data source lookup with 'os=talos' selector (requires custom Packer-built snapshots).
   EOF
 }
@@ -355,7 +357,9 @@ variable "talos_image_id_arm" {
   description = <<EOF
     Optional Hetzner Cloud image ID for ARM64 architecture.
     When set, this image ID will be used directly instead of looking up images with the 'os=talos' selector.
-    This allows using official Hetzner Talos images (e.g., 122629) or any custom snapshot ID.
+    This allows using official Hetzner Talos images or any custom snapshot ID.
+    See https://docs.hetzner.cloud/changelog for the latest official Talos image IDs.
+    Example: "122629" for Talos Linux 1.11.2 ARM64 (as of Jan 2025).
     If not set, the module will use data source lookup with 'os=talos' selector (requires custom Packer-built snapshots).
   EOF
 }
