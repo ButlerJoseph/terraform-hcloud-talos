@@ -170,6 +170,9 @@ Temporary Items
 # Local .terraform directories
 **/.terraform/*
 
+# Terraform lock file (module, not root)
+.terraform.lock.hcl
+
 # .tfstate files
 *.tfstate
 *.tfstate.*

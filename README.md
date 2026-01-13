@@ -104,8 +104,11 @@ This repository contains a Terraform module for creating a Kubernetes cluster wi
 ### Required Software
 
 - [terraform](https://www.terraform.io/downloads.html)
-- [packer](https://www.packer.io/downloads)
 - [helm](https://helm.sh/docs/intro/install/)
+
+### Optional Software
+
+- [packer](https://www.packer.io/downloads) - Only needed if building custom Talos images with extensions
 
 ### Recommended Software
 
@@ -127,9 +130,19 @@ This repository contains a Terraform module for creating a Kubernetes cluster wi
 
 ## Usage
 
-### 1. Build Talos Images with Packer
+### 1. Build Talos Images with Packer (Optional)
 
-Before deploying with Terraform, you need Talos OS images (snapshots) available in your Hetzner Cloud project. This module provides Packer configurations to build these images.
+> [!TIP]
+> **New in this version:** You can now use official Hetzner Talos images directly without building custom images with Packer!
+> Hetzner now provides [official Talos Linux ISOs](https://docs.hetzner.cloud/changelog#2025-10-09-talos-linux-v1112-iso-now-available).
+> Check the [Hetzner Cloud changelog](https://docs.hetzner.cloud/changelog) for the latest available Talos image IDs.
+> As of January 2025, the available images are:
+> - x86_64: Image ID `122630` (Talos Linux 1.11.2)
+> - ARM64: Image ID `122629` (Talos Linux 1.11.2)
+>
+> To use official images, skip this step and set `talos_image_id_x86` and/or `talos_image_id_arm` variables in your Terraform configuration (see examples below).
+
+If you need custom Talos images with additional system extensions (e.g., for specific storage drivers or tools), you can build your own images with Packer. This module provides Packer configurations to build these images.
 
 - **Purpose:** Creates ARM and x86 Talos OS snapshots compatible with Hetzner Cloud.
 - **Location:** All Packer-related files are in the `_packer/` directory.
@@ -149,6 +162,37 @@ Use the module as shown in the following working minimal example:
 
 > [!NOTE]
 > Actually, your current IP address has to have access to the nodes during the creation of the cluster.
+
+**Using official Hetzner Talos images (recommended for most users):**
+
+```hcl
+module "talos" {
+  source = "hcloud-talos/talos/hcloud"
+  # Find the latest version on the Terraform Registry:
+  # https://registry.terraform.io/modules/hcloud-talos/talos/hcloud
+  version = "<latest-version>" # Replace with the latest version number
+
+  talos_version = "v1.11.0" # The version of talos features to use in generated machine configurations
+
+  # Use official Hetzner Talos images (check https://docs.hetzner.cloud/changelog for latest IDs)
+  talos_image_id_x86 = "122630" # Talos Linux 1.11.2 x86_64 (as of Jan 2025)
+  talos_image_id_arm = "122629" # Talos Linux 1.11.2 ARM64 (as of Jan 2025)
+
+  hcloud_token            = "your-hcloud-token"
+  # If true, the current IP address will be used as the source for the firewall rules.
+  # ATTENTION: to determine the current IP, a request to a public service (https://ipv4.icanhazip.com) is made.
+  # If false, you have to provide your public IP address (as list) in the variable `firewall_kube_api_source` and `firewall_talos_api_source`.
+  firewall_use_current_ip = true
+
+  cluster_name    = "dummy.com"
+  datacenter_name = "fsn1-dc14"
+
+  control_plane_count       = 1
+  control_plane_server_type = "cax11"
+}
+```
+
+**Using custom Packer-built images (for users who need custom extensions):**
 
 ```hcl
 module "talos" {
@@ -170,6 +214,10 @@ module "talos" {
 
   control_plane_count       = 1
   control_plane_server_type = "cax11"
+  
+  # When talos_image_id_x86 and talos_image_id_arm are not set,
+  # the module will look for custom snapshots with the 'os=talos' selector
+  # (requires building images with Packer first)
 }
 ```
 
@@ -385,8 +433,8 @@ Refer to the [official Talos documentation on upgrading Kubernetes](https://www.
 
 ## Known Limitations
 
-- Changes in the `user_data` (e.g. `talos_machine_configuration`) and `image` (e.g. version upgrades with `packer`) will
-  not be applied to existing nodes, because it would force a recreation of the nodes.
+- Changes in the `user_data` (e.g. `talos_machine_configuration`) and `image` (e.g. switching image IDs or version upgrades)
+  will not be applied to existing nodes, because it would force a recreation of the nodes.
 
 ## Known Issues
 
