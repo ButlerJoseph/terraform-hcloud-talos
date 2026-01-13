@@ -216,7 +216,7 @@ module "talos" {
   control_plane_server_type = "cax11"
   
   # When talos_image_id_x86 and talos_image_id_arm are not set,
-  # the module will look for custom snapshots with the 'os=talos' label
+  # the module will look for custom snapshots with the 'os=talos' selector
   # (requires building images with Packer first)
 }
 ```
